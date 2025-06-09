@@ -10,30 +10,27 @@ bp = Blueprint("pets", __name__, url_prefix="/pets")
 
 @bp.post("")
 def create_pet():
-    pet_data = generate_pet_name()
+    request_data = request.get_json()
+    pet_data = generate_pet_name(request_data)
     pet_obj = Pet.from_dict(pet_data)
     db.session.add(pet_obj)
     db.session.commit()
 
     return pet_obj.to_dict()
 
-def generate_pet_name():
+def generate_pet_name(request_data):
     # privide the input message for AI API
-    type = "cat"
-    personality = "cute"
-    color = "orange"
-    input_message = f"I need to come up with a name for a pet. The animal type is {type}, the personality is {personality}, and color is {color}. Please help generate a pet name based on those attributes."
+    if "name" in request_data:
+        return request_data
+    input_message = f"I need to come up with a name for a pet. The animal type is {request_data["animal"]}, the personality is {request_data["personality"]}, and color is {request_data["coloration"]}. Please help generate a pet name based on those attributes. Please give me just one name please."
     # call client method to get response
     response = client.models.generate_content(model="gemini-1.5-flash", contents=input_message)
 
-    print(response.text)
+    name = response.text.strip("\n")
 
-    return {
-        "name":{response.text},
-        "animal": {type},
-        "personality": {personality},
-        "coloration": {color}
-    }
+    print(name)
+    request_data["name"] = name
+    return request_data
 @bp.get("")
 def get_pets():
     pet_query = db.select(Pet)

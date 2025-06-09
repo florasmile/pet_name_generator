@@ -21,7 +21,6 @@ class Pet(db.Model):
         
         return pet_dict
 
-
     @classmethod
     def from_dict(cls, data_dict):
         new_pet = cls(
