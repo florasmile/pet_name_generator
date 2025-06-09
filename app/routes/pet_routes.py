@@ -1,8 +1,12 @@
 from flask import Blueprint, request, abort, make_response
 from ..db import db
 from ..models.pet import Pet
+from google import genai
 
+
+client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 bp = Blueprint("pets", __name__, url_prefix="/pets")
+
 
 @bp.post("")
 def create_pet():
